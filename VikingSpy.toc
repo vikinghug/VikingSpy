@@ -1,0 +1,11 @@
+## Interface: 11303
+## Title: VikingSpy!
+## Notes: Vikinghug is your King!
+## Dependencies:
+## SavedVariablesPerCharacter:
+## Version: 0.0.1
+
+libs\Libs.xml
+textures\textures.lua
+fonts\fonts.lua
+src\Code.xml
