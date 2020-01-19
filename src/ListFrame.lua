@@ -42,6 +42,36 @@ function ListFrame:New(parent)
   frame.divider:SetBackdropColor(1,1,1,1)
   frame.divider:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 0)
 
+  frame.options = CreateFrame("Button", addonName .. "_OptionsButton", frame)
+  frame.options:SetSize(14, 14)
+  frame.options:SetPoint("RIGHT", frame, "RIGHT", -2, 0)
+  frame.options.texture = frame.options:CreateTexture(nil, "ARTWORK")
+  addon.Sprites:SetSprite(frame.options.texture, "sprites.tga", "settings")
+  frame.options.texture:SetAllPoints(frame.options)
+
+  frame.options:RegisterForClicks("LeftButtonUp")
+
+  frame.options:SetScript("PostClick", function(this, btn)
+    InterfaceOptionsFrame_OpenToCategory(addonName)
+    InterfaceOptionsFrame_OpenToCategory(addonName)
+  end)
+
+  frame.options:SetScript("OnLeave", function(this) this:Hide() end)
+  frame:SetScript("OnLeave", function(this) this.options:Hide() end)
+
+  frame.options:SetScript("OnEnter", function(this) this:Show() end)
+  frame:SetScript("OnEnter", function(this) this.options:Show() end)
+  frame.options:Hide()
+
+  frame.TimeSinceLastUpdate = 0
+  frame:SetScript("OnUpdate", function(this, elapsed)
+    this.TimeSinceLastUpdate = this.TimeSinceLastUpdate + elapsed
+    if (this.TimeSinceLastUpdate < 0.3) then return end
+
+    this.TimeSinceLastUpdate = 0
+    this:Redraw()
+  end)
+
   return frame
 end
 
@@ -55,31 +85,34 @@ function ListFrame:UpdateOrCreate(data)
   if row then
     row:Update(data)
     row:Show()
-    row.inactive = false
   else
     local inactiveRow = self:GetInactiveRow()
     if inactiveRow then
-      inactiveRow:Update(data)
     else
-      self:Create(data)
+      inactiveRow = self:Create(data)
     end
+
+    if (data.isEnemy) then
+      PlaySoundFile(LSM:Fetch("sound", "Enemy Spotted"), "Master")
+    end
+    inactiveRow:Update(data)
+    inactiveRow:Show()
   end
   self:Redraw()
 end
 
 function ListFrame:Create(data)
   local newRow = addon.PlayerRow:New(self, data)
-  newRow.inactive = false
   table.insert(self.pool, 1, newRow)
+  return newRow
 end
 
 function ListFrame:Prune()
   local now = time()
   for i, row in ipairs(self.pool) do
     local elapsed = now - row.data.lastSeen
-    if (elapsed > addon.Settings.db.profile.displayTime) then
-      row:Hide()
-      row.inactive = true
+    if (elapsed > addon.Settings.db.profile.displayTime and row.locked ~= true) then
+      row:Release()
     end
   end
 end
@@ -88,7 +121,9 @@ function ListFrame:Delete(data)
 end
 
 function ListFrame:Redraw()
-  self:Prune()
+  if self.redrawing == true then return end
+  self.redrawing = true
+  if #self.pool > 0 then self:Prune() end
   --------------------------------------------------------------------------------
   --@TODO: Sort by configurable field
 
@@ -98,15 +133,19 @@ function ListFrame:Redraw()
   local parent = self
   for i, row in ipairs(self.pool) do
     if (row.inactive == false) then
-      row:SetPosition(parent)
-      parent = row
+      if ((addon.Settings.db.profile.showFriendly == true and row.data.isEnemy == false) or row.data.isEnemy) then
+        row:SetPosition(parent)
+        parent = row
+      else
+        row:Release()
+      end
     end
   end
+  self.redrawing = false
 end
 
 function ListFrame:GetRowByGUID(guid)
   for i, row in ipairs(self.pool) do
-    -- addon:Print(i, guid)
     if row.data.guid == guid then
       return row
     end

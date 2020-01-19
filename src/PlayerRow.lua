@@ -3,18 +3,19 @@ local LSM = LibStub("LibSharedMedia-3.0")
 
 local addonName, addon = ...
 
-local PlayerRow = Taka:NewClass("Button", addonName .. "_PlayerRowFrame", "SecureActionButtonTemplate")
+local PlayerRow = {}
 addon.PlayerRow = PlayerRow
 
-function PlayerRow:New(parent, data)
-  local frame = self:Super(PlayerRow):New(parent)
+local function new(parent, data)
+  local frame = CreateFrame("Button", addonName .. "_PlayerRowFrame", parent, "SecureActionButtonTemplate")
+  frame.inactive = false
 
   local barWidth = addon.Settings.db.profile.barWidth
   local barHeight = addon.Settings.db.profile.barHeight
 
   frame:EnableMouse(true)
   frame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-  frame:SetAttribute("type", "macro")
+  frame:SetAttribute("type1", "target")
 
   frame:SetMovable(true)
   frame:RegisterForDrag("LeftButton")
@@ -33,31 +34,79 @@ function PlayerRow:New(parent, data)
     bgFile = LSM:Fetch("background", "Solid"),
     insets = { left = 0, right = 0, top = 0, bottom = 0}
   })
+  if (frame.leftText) then
+    frame.leftText:Show()
+  else
+    frame.leftText = frame:CreateFontString(nil, "Artwork")
+    frame.leftText:SetJustifyH("LEFT")
+    frame.leftText:SetFont(LSM:Fetch("font", "Staatliches"), 14)
+    frame.leftText:SetPoint("LEFT", frame, "LEFT", 10, 0)
+  end
 
-  frame.leftText = frame.leftText or frame:CreateFontString(nil, "Artwork")
-  frame.leftText:SetJustifyH("LEFT")
-  frame.leftText:SetFont(LSM:Fetch("font", "Staatliches"), 14)
-  frame.leftText:SetPoint("LEFT", frame, "LEFT", 8, 0)
-  frame.leftText:SetText(data.name)
+  if (frame.classIndicator) then
+    frame.classIndicator:Show()
+  else
+    frame.classIndicator = frame:CreateTexture(nil, "ARTWORK")
+    frame.classIndicator:SetSize(6, barHeight)
+    frame.classIndicator:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
+  end
 
-  frame.classIndicator = frame.classIndicator or frame:CreateTexture(nil, "ARTWORK")
-  frame.classIndicator:SetSize(6, barHeight)
-  frame.classIndicator:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
+  if (frame.timeIndicator) then
+    frame.timeIndicator:Show()
+  else
+    frame.timeIndicator = CreateFrame("StatusBar", nil, frame)
+    frame.timeIndicator:SetSize(barWidth - 6, 3)
+    frame.timeIndicator:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 6, 0)
+    frame.timeIndicator:SetStatusBarTexture(LSM:Fetch("background", "Solid"), 'ARTWORK')
+    frame.timeIndicator:SetStatusBarColor(addon.Colors.YELLOW:ToList())
+    frame.timeIndicator:SetAlpha(0.75)
+    frame.timeIndicator:SetMinMaxValues(0, barWidth)
+  end
 
-  frame.timeIndicator = frame.timeIndicator or CreateFrame("StatusBar", nil, frame)
-  frame.timeIndicator:SetSize(barWidth - 6, 3)
-  frame.timeIndicator:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 6, 0)
-  frame.timeIndicator:SetStatusBarTexture(LSM:Fetch("background", "Solid"), 'ARTWORK')
-  frame.timeIndicator:SetStatusBarColor(addon.Colors.YELLOW:ToList())
-  frame.timeIndicator:SetAlpha(0.75)
-  frame.timeIndicator:SetMinMaxValues(0, barWidth)
+  if frame.lock then
+  else
+    frame.lock = frame:CreateTexture(nil, "ARTWORK")
+    frame.lock:SetSize(14, 14)
+    frame.lock:SetPoint("RIGHT", frame, "RIGHT", -2, 0)
+    addon.Sprites:SetSprite(frame.lock, "sprites.tga", "unlock")
+    frame.lock:SetAlpha(0)
+  end
 
-  frame:Update(data)
+  frame:SetScript("OnEnter", function(this)
+    -- addon.Sprites:SetSprite(this.lock, "sprites.tga", "lock")
+    this.lock:SetAlpha(1)
+  end)
+  frame:SetScript("OnLeave", function(this)
+    if (this.locked ~= true) then
+      this.lock:SetAlpha(0)
+    else
+      this.lock:SetAlpha(0.5)
+    end
+  end)
+  frame:SetScript("PostClick", function(this, btn)
+    if (btn == "RightButton") then
+      if (this.locked == true) then
+        addon.Sprites:SetSprite(this.lock, "sprites.tga", "unlock")
+        this:Update(this.data)
+        this.timeIndicator:Show()
+      else
+        addon.Sprites:SetSprite(this.lock, "sprites.tga", "lock")
+        this.timeIndicator:Hide()
+      end
+
+      this.locked = not this.locked
+      this.lock:SetAlpha(1)
+    elseif btn == "LeftButton" then
+
+    end
+  end)
 
   return frame
 end
 
-function PlayerRow:Update(data)
+local PlayerRowBase = {}
+function PlayerRowBase:Update(data)
+  self.inactive = false
   local barWidth = addon.Settings.db.profile.barWidth
   local barHeight = addon.Settings.db.profile.barHeight
 
@@ -65,10 +114,9 @@ function PlayerRow:Update(data)
   self.classIndicator:SetSize(6, barHeight)
   self.timeIndicator:SetSize(barWidth - 6, 3)
 
-  self.data = data
-  if data.horde then
+  if data.isHorde then
     self:SetBackdropColor(0.94, 0.2, 0.31, 0.8)
-  elseif data.alliance then
+  elseif data.isAlliance then
     self:SetBackdropColor(0.18, 0.59, 0.97, 0.8)
   end
 
@@ -95,11 +143,12 @@ function PlayerRow:Update(data)
 
   self.classIndicator:SetColorTexture(color:ToList())
 
-  self.leftText:SetText(data.name)
+  local level = self:GetDisplayLevel(data)
+  self.leftText:SetText(level.." "..data.name)
 
-  self:SetAttribute("macrotext", "/target " .. data.name)
+  self:SetAttribute("macrotext1", "/targetexact "..data.name)
 
-  local accumulator = 0
+  local accumulator = time() - data.lastSeen
   local duration = addon.Settings.db.profile.displayTime
   local startValue = barWidth
   local endValue = 0
@@ -120,9 +169,31 @@ function PlayerRow:Update(data)
     this:SetValue(latest)
   end)
 
+  self.data = data
   return self
 end
 
-function PlayerRow:SetPosition(parent)
+function PlayerRowBase:GetDisplayLevel(data)
+  data.level = max(self.data.level, data.level)
+  local levelDisplay = data.level == -1 and "??" or data.level
+
+  return levelDisplay
+end
+
+function PlayerRowBase:SetPosition(parent)
   self:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", 0, -3)
+end
+
+function PlayerRowBase:Release()
+  self.inactive = true
+  self.data.level = -1
+  self:Hide()
+end
+
+function PlayerRow:New(parent, data)
+  local frame = new(parent, data)
+  addon.Helpers:ApplyMixin(frame, PlayerRowBase)
+  frame:Update(data)
+
+  return frame
 end

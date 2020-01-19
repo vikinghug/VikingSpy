@@ -4,7 +4,7 @@ local Settings = {}; addon.Settings = Settings
 
 local defaults = {
   profile = {
-    showAlliance = true,
+    showFriendly = true,
     displayTime = 10,
     barHeight = 20,
     barWidth = 140,
