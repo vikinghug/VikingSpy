@@ -8,6 +8,7 @@ local defaults = {
     displayTime = 10,
     barHeight = 20,
     barWidth = 140,
+    alertSound = [[Interface\Addons\VikingSpy\assets\sounds\enemy-spotted.mp3]],
   }
 }
 

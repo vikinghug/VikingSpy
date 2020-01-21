@@ -2,6 +2,8 @@
     <Script file="LibSharedMedia-3.0.lua" />
     <Script file="LibStub\LibStub.lua"/>
     <Script file="Taka-0.0\Taka-0.0.lua"/>
+    <Include file="AceGUI-3.0\AceGUI-3.0.xml"/>
+    <Include file="AceConsole-3.0\AceConsole-3.0.xml"/>
     <Include file="AceConfig-3.0\AceConfig-3.0.xml"/>
     <Include file="AceDB-3.0\AceDB-3.0.xml"/>
     <Include file="AceDBOptions-3.0\AceDBOptions-3.0.xml"/>
