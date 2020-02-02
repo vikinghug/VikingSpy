@@ -8,11 +8,37 @@ function addon:OnInitialize()
   addon.Options:OnLoad()
 
   self.list = self.ListFrame:New(UIParent)
-  self:CreateEvents()
+
+  self.zoneFrame = CreateFrame("frame")
+  self.zoneFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+  self.zoneFrame:SetScript("OnEvent", addon.OnZoneChange)
+
+  self.eventFrame = self:CreateEvents()
+end
+
+function addon:OnZoneChange()
+  local inInstance, instanceType = IsInInstance()
+    if (instanceType == "pvp") then
+      if (addon.Settings.db.profile.enableInBattlegrounds == true) then
+        addon:Enable()
+      else
+        addon:Disable()
+      end
+    end
+end
+
+function addon:Enable()
+  self.eventFrame:Show()
+  self.list:Show()
+end
+
+function addon:Disable()
+  self.eventFrame:Hide()
+  self.list:Hide()
 end
 
 function addon:CreateEvents()
-  local f = CreateFrame("Frame")
+  local f = self.eventFrame or CreateFrame("Frame")
   f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
   f:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
   f:SetScript("OnEvent", function(self, event, ...)
@@ -31,6 +57,8 @@ function addon:CreateEvents()
     addon:MaybeAddUnit(sourceGUID, timestamp)
     addon:MaybeAddUnit(destGUID, timestamp)
   end
+
+  return f
 end
 
 function addon:MaybeAddUnit(guid, timestamp, level)

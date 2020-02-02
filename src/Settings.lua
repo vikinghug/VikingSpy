@@ -4,6 +4,7 @@ local Settings = {}; addon.Settings = Settings
 
 local defaults = {
   profile = {
+    enableInBattlegrounds = false,
     showFriendly = true,
     displayTime = 10,
     barHeight = 20,

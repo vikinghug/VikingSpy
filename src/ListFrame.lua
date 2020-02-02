@@ -93,7 +93,7 @@ function ListFrame:UpdateOrCreate(data)
     end
 
     if (data.isEnemy) then
-      PlaySoundFile(LSM:Fetch("sound", "Enemy Spotted"), "Master")
+      PlaySoundFile(addon.Settings.db.profile.alertSound, "Master")
     end
     inactiveRow:Update(data)
     inactiveRow:Show()

@@ -34,6 +34,18 @@ Options.primary = {
   name = addonName,
   type = 'group',
   args = {
+    enableInBattlegrounds = {
+  		name = 'Enable in Battlegrounds',
+  		type = 'toggle',
+  		order = 1,
+  		desc = "Show or Hide in battlegrounds",
+      set = function(info, val)
+        addon.Settings.db.profile.enableInBattlegrounds = val
+        addon:OnZoneChange()
+      end,
+  		get = function(info) return addon.Settings.db.profile.enableInBattlegrounds end,
+    },
+
   	showFriendly = {
   		name = 'Show Friendly Players',
   		type = 'toggle',
