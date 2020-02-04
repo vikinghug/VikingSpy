@@ -88,7 +88,6 @@ end
 -- grey     0.5,  0.5,    0.5
 local function ConvertBlizzardToVHColor(color)
   local vhColor = {}
-  addon:Debug('blizz', color)
   if (color.r == 1 and color.g == 0.1 and color.b == 0.1) then
     vhColor = Colors.RED
 
@@ -118,7 +117,6 @@ function Colors:NewDifficultyColor(num)
   local r, g, b, a = ConvertBlizzardToVHColor(blizzardColor)
 
   local color = Colors:New(r, g, b, a)
-  addon:Debug("color", color)
   return color
 end
 

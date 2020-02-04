@@ -9,11 +9,10 @@ function addon:OnInitialize()
 
   self.list = self.ListFrame:New(UIParent)
 
-  self.zoneFrame = CreateFrame("frame")
+  self.eventFrame = CreateFrame("Frame")
+  self.zoneFrame = CreateFrame("Frame")
   self.zoneFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
   self.zoneFrame:SetScript("OnEvent", addon.OnZoneChange)
-
-  self.eventFrame = self:CreateEvents()
 end
 
 function addon:OnZoneChange()
@@ -24,21 +23,27 @@ function addon:OnZoneChange()
       else
         addon:Disable()
       end
+    else
+      addon:Enable()
     end
 end
 
 function addon:Enable()
+  addon:CreateEvents()
   self.eventFrame:Show()
   self.list:Show()
 end
 
 function addon:Disable()
+  self.eventFrame:SetScript("OnEvent", nil)
+  self.eventFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+  self.eventFrame:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
   self.eventFrame:Hide()
   self.list:Hide()
 end
 
 function addon:CreateEvents()
-  local f = self.eventFrame or CreateFrame("Frame")
+  local f = self.eventFrame
   f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
   f:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
   f:SetScript("OnEvent", function(self, event, ...)
@@ -57,8 +62,6 @@ function addon:CreateEvents()
     addon:MaybeAddUnit(sourceGUID, timestamp)
     addon:MaybeAddUnit(destGUID, timestamp)
   end
-
-  return f
 end
 
 function addon:MaybeAddUnit(guid, timestamp, level)
