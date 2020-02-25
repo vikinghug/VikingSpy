@@ -14,5 +14,5 @@ local defaults = {
 }
 
 function Settings:OnLoad()
-  self.db = LibStub("AceDB-3.0"):New("VikinghugDB", defaults, true)
+  self.db = LibStub("AceDB-3.0"):New("VikingSpyDB", defaults, true)
 end
