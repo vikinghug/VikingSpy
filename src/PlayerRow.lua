@@ -1,4 +1,4 @@
-local Taka = LibStub("Taka-0.0")
+local VSL = LibStub("VikingSharedLib")
 local LSM = LibStub("LibSharedMedia-3.0")
 
 local addonName, addon = ...
@@ -58,7 +58,7 @@ local function new(parent, data)
     frame.timeIndicator:SetSize(barWidth - 6, 3)
     frame.timeIndicator:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 6, 0)
     frame.timeIndicator:SetStatusBarTexture(LSM:Fetch("background", "Solid"), 'ARTWORK')
-    frame.timeIndicator:SetStatusBarColor(addon.Colors.YELLOW:ToList())
+    frame.timeIndicator:SetStatusBarColor(VSL.Colors.YELLOW:ToList())
     frame.timeIndicator:SetAlpha(0.75)
     frame.timeIndicator:SetMinMaxValues(0, barWidth)
   end
@@ -68,12 +68,12 @@ local function new(parent, data)
     frame.lock = frame:CreateTexture(nil, "ARTWORK")
     frame.lock:SetSize(14, 14)
     frame.lock:SetPoint("RIGHT", frame, "RIGHT", -2, 0)
-    addon.Sprites:SetSprite(frame.lock, "sprites.tga", "unlock")
+    VSL.Sprites:SetSprite(frame.lock, "sprites.tga", "unlock")
     frame.lock:SetAlpha(0)
   end
 
   frame:SetScript("OnEnter", function(this)
-    -- addon.Sprites:SetSprite(this.lock, "sprites.tga", "lock")
+    -- VSL.Sprites:SetSprite(this.lock, "sprites.tga", "lock")
     this.lock:SetAlpha(1)
   end)
   frame:SetScript("OnLeave", function(this)
@@ -86,11 +86,11 @@ local function new(parent, data)
   frame:SetScript("PostClick", function(this, btn)
     if (btn == "RightButton") then
       if (this.locked == true) then
-        addon.Sprites:SetSprite(this.lock, "sprites.tga", "unlock")
+        VSL.Sprites:SetSprite(this.lock, "sprites.tga", "unlock")
         this:Update(this.data)
         this.timeIndicator:Show()
       else
-        addon.Sprites:SetSprite(this.lock, "sprites.tga", "lock")
+        VSL.Sprites:SetSprite(this.lock, "sprites.tga", "lock")
         this.timeIndicator:Hide()
       end
 
@@ -122,23 +122,23 @@ function PlayerRowBase:Update(data)
 
   local color
   if data.class == "DRUID" then
-    color = addon.Colors.ORANGE
+    color = VSL.Colors.ORANGE
   elseif data.class == "HUNTER" then
-    color = addon.Colors.GREEN
+    color = VSL.Colors.GREEN
   elseif data.class == "MAGE" then
-    color = addon.Colors.BLUE
+    color = VSL.Colors.BLUE
   elseif data.class == "PALADIN" then
-    color = addon.Colors.PINK
+    color = VSL.Colors.PINK
   elseif data.class == "PRIEST" then
-    color = addon.Colors.WHITE
+    color = VSL.Colors.WHITE
   elseif data.class == "ROGUE" then
-    color = addon.Colors.YELLOW
+    color = VSL.Colors.YELLOW
   elseif data.class == "SHAMAN" then
-    color = addon.Colors.BLUE
+    color = VSL.Colors.BLUE
   elseif data.class == "WARLOCK" then
-    color = addon.Colors.PURPLE
+    color = VSL.Colors.PURPLE
   elseif data.class == "WARRIOR" then
-    color = addon.Colors.BROWN
+    color = VSL.Colors.BROWN
   end
 
   self.classIndicator:SetColorTexture(color:ToList())
@@ -192,7 +192,7 @@ end
 
 function PlayerRow:New(parent, data)
   local frame = new(parent, data)
-  addon.Helpers:ApplyMixin(frame, PlayerRowBase)
+  VSL:ApplyMixin(frame, PlayerRowBase)
   frame:Update(data)
 
   return frame

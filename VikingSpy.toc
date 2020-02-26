@@ -1,12 +1,9 @@
 ## Interface: 11303
 ## Title: VikingSpy!
-## Notes: Vikinghug is your King!
-## Dependencies:
+## Notes: Addon to display the detection of nearby friendly, and enemy players
+## Dependencies: VikingSharedLib
 ## SavedVariablesPerCharacter: VikingSpyDB
-## Version: 0.1.3
+## Version: 0.1.5
 
 libs\Libs.xml
-assets\textures\textures.lua
-assets\fonts\fonts.lua
-assets\sounds\sounds.lua
 src\Code.xml

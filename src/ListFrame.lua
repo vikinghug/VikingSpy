@@ -1,4 +1,5 @@
 local Taka = LibStub("Taka-0.0")
+local VSL = LibStub("VikingSharedLib")
 local LSM = LibStub("LibSharedMedia-3.0")
 
 local addonName, addon = ...
@@ -46,7 +47,7 @@ function ListFrame:New(parent)
   frame.options:SetSize(14, 14)
   frame.options:SetPoint("RIGHT", frame, "RIGHT", -2, 0)
   frame.options.texture = frame.options:CreateTexture(nil, "ARTWORK")
-  addon.Sprites:SetSprite(frame.options.texture, "sprites.tga", "settings")
+  VSL.Sprites:SetSprite(frame.options.texture, "sprites.tga", "settings")
   frame.options.texture:SetAllPoints(frame.options)
 
   frame.options:RegisterForClicks("LeftButtonUp")
