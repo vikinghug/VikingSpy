@@ -34,6 +34,40 @@ Options.primary = {
   name = addonName,
   type = 'group',
   args = {
+    fontFamily = {
+      name = 'Font Family',
+      type = 'select',
+      order = 0.11,
+      sorting = function(values, ...)
+        local keys = {}
+        for _, v in spairs(LSM:HashTable("font")) do table.insert(keys, v) end
+        return keys
+      end,
+      values = function()
+        local values = {}
+        for k, v in pairs(LSM:HashTable("font")) do
+          values[v] = k
+        end
+        return values
+      end,
+      set = function(info, val)
+        addon.Settings.db.profile.font = val
+      end,
+      get = function(info) return addon.Settings.db.profile.font end,
+    },
+
+    fontSize = {
+  		name = 'Target Font Size',
+  		type = 'range',
+      order = 0.12,
+      softMin = 4,
+      softMax = 46,
+      set = function(info, val)
+        addon.Settings.db.profile.fontSize = val
+      end,
+  		get = function(info) return addon.Settings.db.profile.fontSize end,
+    },
+
     enableInBattlegrounds = {
   		name = 'Enable in Battlegrounds',
   		type = 'toggle',

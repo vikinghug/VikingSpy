@@ -30,8 +30,8 @@ function ListFrame:New(parent)
 
   frame.text = frame.text or frame:CreateFontString(nil, "Artwork")
   frame.text:SetJustifyH("LEFT")
-  frame.text:SetFont(LSM:Fetch("font", "Staatliches"), 14)
-  frame.text:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 2)
+  frame.text:SetFont(addon.Settings.db.profile.font, addon.Settings.db.profile.fontSize)
+  frame.text:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 4)
   frame.text:SetText("VikingSpy")
 
   frame.divider = CreateFrame("Frame", nil, frame)

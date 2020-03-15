@@ -30,36 +30,34 @@ local function new(parent, data)
   frame.data = data
 
   frame:SetSize(barWidth, barHeight)
-  frame:SetBackdrop({
-    bgFile = LSM:Fetch("background", "Solid"),
-    insets = { left = 0, right = 0, top = 0, bottom = 0}
-  })
+  -- frame:SetBackdrop({
+  --   bgFile = LSM:Fetch("background", "Solid"),
+  --   insets = { left = 0, right = 0, top = 0, bottom = 0}
+  -- })
   if (frame.leftText) then
     frame.leftText:Show()
   else
     frame.leftText = frame:CreateFontString(nil, "Artwork")
     frame.leftText:SetJustifyH("LEFT")
-    frame.leftText:SetFont(LSM:Fetch("font", "Staatliches"), 14)
-    frame.leftText:SetPoint("LEFT", frame, "LEFT", 10, 0)
-  end
-
-  if (frame.classIndicator) then
-    frame.classIndicator:Show()
-  else
-    frame.classIndicator = frame:CreateTexture(nil, "ARTWORK")
-    frame.classIndicator:SetSize(6, barHeight)
-    frame.classIndicator:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
+    frame.leftText:SetFont(addon.Settings.db.profile.font, addon.Settings.db.profile.fontSize)
+    frame.leftText:SetPoint("LEFT", frame, "LEFT", 0, 0)
+    frame.leftText:SetShadowColor(VSL.Colors.BG:ToList())
+    frame.leftText:SetShadowOffset(1, -1)
   end
 
   if (frame.timeIndicator) then
     frame.timeIndicator:Show()
   else
     frame.timeIndicator = CreateFrame("StatusBar", nil, frame)
-    frame.timeIndicator:SetSize(barWidth - 6, 3)
-    frame.timeIndicator:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 6, 0)
+    frame.timeIndicator:SetSize(barWidth, 2)
+    frame.timeIndicator:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 0)
     frame.timeIndicator:SetStatusBarTexture(LSM:Fetch("background", "Solid"), 'ARTWORK')
-    frame.timeIndicator:SetStatusBarColor(VSL.Colors.YELLOW:ToList())
-    frame.timeIndicator:SetAlpha(0.75)
+
+    frame.timeIndicator:SetBackdrop({
+      bgFile = LSM:Fetch("background", "Solid"),
+      insets = { left = 0, right = 0, top = 0, bottom = 0}
+    })
+
     frame.timeIndicator:SetMinMaxValues(0, barWidth)
   end
 
@@ -67,13 +65,12 @@ local function new(parent, data)
   else
     frame.lock = frame:CreateTexture(nil, "ARTWORK")
     frame.lock:SetSize(14, 14)
-    frame.lock:SetPoint("RIGHT", frame, "RIGHT", -2, 0)
+    frame.lock:SetPoint("RIGHT", frame, "RIGHT", 2, 0)
     VSL.Sprites:SetSprite(frame.lock, "sprites.tga", "unlock")
     frame.lock:SetAlpha(0)
   end
 
   frame:SetScript("OnEnter", function(this)
-    -- VSL.Sprites:SetSprite(this.lock, "sprites.tga", "lock")
     this.lock:SetAlpha(1)
   end)
   frame:SetScript("OnLeave", function(this)
@@ -88,10 +85,12 @@ local function new(parent, data)
       if (this.locked == true) then
         VSL.Sprites:SetSprite(this.lock, "sprites.tga", "unlock")
         this:Update(this.data)
-        this.timeIndicator:Show()
+        this.data.lastSeen = time()
+        this:CreateTimeIndicator(frame.data)
       else
         VSL.Sprites:SetSprite(this.lock, "sprites.tga", "lock")
-        this.timeIndicator:Hide()
+        this.timeIndicator:SetValue(addon.Settings.db.profile.barWidth)
+        this.timeIndicator:SetScript("OnUpdate", nil)
       end
 
       this.locked = not this.locked
@@ -105,20 +104,37 @@ local function new(parent, data)
 end
 
 local PlayerRowBase = {}
+function PlayerRowBase:CreateTimeIndicator(data)
+  local accumulator = time() - data.lastSeen
+  local duration = addon.Settings.db.profile.displayTime
+  local startValue = addon.Settings.db.profile.barWidth
+  local endValue = 0
+  local delta = endValue - startValue
+
+  self.timeIndicator.TimeSinceLastUpdate = 0
+  self.timeIndicator:SetScript("OnUpdate", function(this, elapsed)
+    this.TimeSinceLastUpdate = this.TimeSinceLastUpdate + elapsed
+    accumulator = accumulator + elapsed
+
+    if (this.TimeSinceLastUpdate < 0.1) then return end
+    this.TimeSinceLastUpdate = 0
+
+    if elapsed > duration then
+      this:SetScript("OnUpdate", nil)
+    end
+    local progress = min(accumulator / duration, 1)
+    local latest = startValue + progress * delta
+    this:SetValue(latest)
+  end)
+  end
+
 function PlayerRowBase:Update(data)
   self.inactive = false
   local barWidth = addon.Settings.db.profile.barWidth
   local barHeight = addon.Settings.db.profile.barHeight
 
   self:SetSize(barWidth, barHeight)
-  self.classIndicator:SetSize(6, barHeight)
-  self.timeIndicator:SetSize(barWidth - 6, 3)
-
-  if data.isHorde then
-    self:SetBackdropColor(0.94, 0.2, 0.31, 0.8)
-  elseif data.isAlliance then
-    self:SetBackdropColor(0.18, 0.59, 0.97, 0.8)
-  end
+  self.timeIndicator:SetSize(barWidth, 2)
 
   local color
   if data.class == "DRUID" then
@@ -138,36 +154,29 @@ function PlayerRowBase:Update(data)
   elseif data.class == "WARLOCK" then
     color = VSL.Colors.PURPLE
   elseif data.class == "WARRIOR" then
-    color = VSL.Colors.BROWN
+    color = VSL.Colors.LIGHT_BROWN
   end
 
-  self.classIndicator:SetColorTexture(color:ToList())
-
   local level = self:GetDisplayLevel(data)
-  self.leftText:SetText(level.." "..data.name)
 
-  self:SetAttribute("macrotext1", "/targetexact "..data.name)
+  self.leftText:SetText(color:ToText() .. level.."|r "..data.name)
 
-  local accumulator = time() - data.lastSeen
-  local duration = addon.Settings.db.profile.displayTime
-  local startValue = barWidth
-  local endValue = 0
-  local delta = endValue - startValue
+  if self.locked ~= true then
+    self:CreateTimeIndicator(data)
+  end
 
-  self.timeIndicator.TimeSinceLastUpdate = 0
-  self.timeIndicator:SetScript("OnUpdate", function(this, elapsed)
-    this.TimeSinceLastUpdate = this.TimeSinceLastUpdate + elapsed
-    accumulator = accumulator + elapsed
-    if (this.TimeSinceLastUpdate < 0.1) then return end
-    this.TimeSinceLastUpdate = 0
+  if data.isHorde then
+    self.timeIndicator:SetStatusBarColor(0.94, 0.2, 0.31, 1)
+    self.timeIndicator:SetBackdropColor(0.94, 0.2, 0.31, 0.5)
 
-    if elapsed > duration then
-      this:SetScript("OnUpdate", nil)
-    end
-    local progress = min(accumulator / duration, 1)
-    local latest = startValue + progress * delta
-    this:SetValue(latest)
-  end)
+  elseif data.isAlliance then
+    self.timeIndicator:SetStatusBarColor(0.18, 0.59, 0.97, 1)
+    self.timeIndicator:SetBackdropColor(0.18, 0.59, 0.97, 0.5)
+  end
+
+  self:SetAttribute("macrotext1", "/target "..data.name)
+
+
 
   self.data = data
   return self

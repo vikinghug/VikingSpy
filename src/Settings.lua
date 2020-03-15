@@ -1,4 +1,5 @@
 local addonName, addon = ...
+local LSM = LibStub("LibSharedMedia-3.0")
 
 local Settings = {}; addon.Settings = Settings
 
@@ -10,6 +11,8 @@ local defaults = {
     barHeight = 20,
     barWidth = 140,
     alertSound = [[Interface\Addons\VikingSpy\assets\sounds\enemy-spotted.mp3]],
+    font = LSM:Fetch("font", "Montserrat Regular"),
+    fontSize = 12,
   }
 }
 
