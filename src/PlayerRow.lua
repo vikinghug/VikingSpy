@@ -15,7 +15,7 @@ local function new(parent, data)
 
   frame:EnableMouse(true)
   frame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-  frame:SetAttribute("type1", "target")
+  frame:SetAttribute("type1", "macro")
 
   frame:SetMovable(true)
   frame:RegisterForDrag("LeftButton")
@@ -174,7 +174,7 @@ function PlayerRowBase:Update(data)
     self.timeIndicator:SetBackdropColor(0.18, 0.59, 0.97, 0.5)
   end
 
-  self:SetAttribute("macrotext1", "/target "..data.name)
+  self:SetAttribute("macrotext1", "/targetexact " .. data.name)
 
 
 
