@@ -1,4 +1,12 @@
 package-as: VikingSpy
 
+externals:
+    libs/VikingSharedLib:
+        url: https://github.com/vikinghug/VikingSharedLib
+        tag: latest
+
+move-folders:
+    libs/VikingSharedLib: VikingSharedLib
+
 required-dependencies:
     - 364561-vikingsharedlib
