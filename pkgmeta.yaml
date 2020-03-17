@@ -10,4 +10,4 @@ move-folders:
     VikingSpy/libs/VikingSharedLib: VikingSharedLib
 
 required-dependencies:
-    - 364561-vikingsharedlib
+    - vikingsharedlib
