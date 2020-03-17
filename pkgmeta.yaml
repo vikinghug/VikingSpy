@@ -1,0 +1,4 @@
+package-as: VikingSpy
+
+required-dependencies:
+    - 364561-vikingsharedlib
