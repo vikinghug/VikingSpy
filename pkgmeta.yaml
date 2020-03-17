@@ -6,7 +6,7 @@ externals:
         tag: latest
 
 move-folders:
-    libs/VikingSharedLib: VikingSharedLib
+    VikingSpy/libs/VikingSharedLib: VikingSharedLib
 
 required-dependencies:
     - 364561-vikingsharedlib
