@@ -113,18 +113,6 @@ function addon:UnitIsAlliance(race)
   return false
 end
 
---@debug helpers
-function addon:Print(...)
-  local color = "|cFFEDC540"
-  print(color .. addonName .. ":|r", ...)
-end
-
-function addon:Debug(strName, tData)
-  if ViragDevTool_AddData then
-    ViragDevTool_AddData(tData, strName)
-  end
-end
-
 local frame = CreateFrame("Frame", "VHSpyInitFrame")
 frame:RegisterEvent("ADDON_LOADED")
 local function eventHandler(self, event, ...)
