@@ -52,18 +52,20 @@ Options.primary = {
       end,
       set = function(info, val)
         addon.Settings.db.profile.font = val
+        addon.list:Redraw()
       end,
       get = function(info) return addon.Settings.db.profile.font end,
     },
 
     fontSize = {
-  		name = 'Target Font Size',
+  		name = 'Font Size',
   		type = 'range',
       order = 0.12,
       softMin = 4,
       softMax = 46,
       set = function(info, val)
         addon.Settings.db.profile.fontSize = val
+        addon.list:Redraw()
       end,
   		get = function(info) return addon.Settings.db.profile.fontSize end,
     },
@@ -108,7 +110,7 @@ Options.primary = {
 
 
     barWidth = {
-  		name = 'Addon Width',
+  		name = 'Bar Width',
   		type = 'range',
       order = 3,
       min = 40,
@@ -116,13 +118,13 @@ Options.primary = {
   		desc = 'How wide do you want this dang thing?',
       set = function(info, val)
         addon.Settings.db.profile.barWidth = val
-        addon.list:Update()
+        addon.list:Redraw()
       end,
   		get = function(info) return addon.Settings.db.profile.barWidth end,
     },
 
     barHeight = {
-  		name = 'Bar Height',
+  		name = 'Row Height',
   		type = 'range',
       order = 4,
       min = 5,
@@ -130,9 +132,23 @@ Options.primary = {
   		desc = 'How tall do you want these dang bars?',
       set = function(info, val)
         addon.Settings.db.profile.barHeight = val
-        addon.list:Update()
+        addon.list:Redraw()
       end,
   		get = function(info) return addon.Settings.db.profile.barHeight end,
+    },
+
+    timerHeight = {
+  		name = 'Timer Height',
+  		type = 'range',
+      order = 4.1,
+      min = 0,
+      softMax = 15,
+  		desc = 'How tall do you want these dang timers?',
+      set = function(info, val)
+        addon.Settings.db.profile.timerHeight = val
+        addon.list:Redraw()
+      end,
+  		get = function(info) return addon.Settings.db.profile.timerHeight end,
     },
 
     alertSound = {

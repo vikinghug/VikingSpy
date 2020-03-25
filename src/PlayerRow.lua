@@ -51,6 +51,7 @@ local function new(parent, data)
     frame.timeIndicator = CreateFrame("StatusBar", nil, frame)
     frame.timeIndicator:SetSize(barWidth, 2)
     frame.timeIndicator:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 0)
+    frame.timeIndicator:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 0)
     frame.timeIndicator:SetStatusBarTexture(LSM:Fetch("background", "Solid"), 'ARTWORK')
 
     frame.timeIndicator:SetBackdrop({
@@ -134,7 +135,7 @@ function PlayerRowBase:Update(data)
   local barHeight = addon.Settings.db.profile.barHeight
 
   self:SetSize(barWidth, barHeight)
-  self.timeIndicator:SetSize(barWidth, 2)
+  self.timeIndicator:SetSize(barWidth, addon.Settings.db.profile.timerHeight)
 
   local color
   if data.class == "DRUID" then
@@ -176,8 +177,6 @@ function PlayerRowBase:Update(data)
 
   self:SetAttribute("macrotext1", "/targetexact " .. data.name)
 
-
-
   self.data = data
   return self
 end
@@ -187,6 +186,13 @@ function PlayerRowBase:GetDisplayLevel(data)
   local levelDisplay = data.level == -1 and "??" or data.level
 
   return levelDisplay
+end
+
+function PlayerRowBase:Redraw(parent)
+  self:SetSize(addon.Settings.db.profile.barWidth, addon.Settings.db.profile.barHeight)
+  self.timeIndicator:SetSize(addon.Settings.db.profile.barWidth, addon.Settings.db.profile.timerHeight)
+  self.leftText:SetFont(addon.Settings.db.profile.font, addon.Settings.db.profile.fontSize)
+  self:SetPosition(parent)
 end
 
 function PlayerRowBase:SetPosition(parent)

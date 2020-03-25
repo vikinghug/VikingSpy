@@ -35,13 +35,14 @@ function ListFrame:New(parent)
   frame.text:SetText("VikingSpy")
 
   frame.divider = CreateFrame("Frame", nil, frame)
-  frame.divider:SetSize(barWidth, 2)
+  frame.divider:SetSize(barWidth, 1)
   frame.divider:SetBackdrop({
     bgFile = LSM:Fetch("background", "Solid"),
     insets = { left = 0, right = 0, top = 0, bottom = 0}
   })
   frame.divider:SetBackdropColor(1,1,1,1)
   frame.divider:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 0)
+  frame.divider:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 0)
 
   frame.options = CreateFrame("Button", addonName .. "_OptionsButton", frame)
   frame.options:SetSize(14, 14)
@@ -125,6 +126,9 @@ function ListFrame:Redraw()
   if self.redrawing == true then return end
   self.redrawing = true
   if #self.pool > 0 then self:Prune() end
+
+  self.text:SetFont(addon.Settings.db.profile.font, addon.Settings.db.profile.fontSize)
+  self:SetSize(addon.Settings.db.profile.barWidth, addon.Settings.db.profile.barHeight)
   --------------------------------------------------------------------------------
   --@TODO: Sort by configurable field
 
@@ -135,7 +139,7 @@ function ListFrame:Redraw()
   for i, row in ipairs(self.pool) do
     if (row.inactive == false) then
       if ((addon.Settings.db.profile.showFriendly == true and row.data.isEnemy == false) or row.data.isEnemy) then
-        row:SetPosition(parent)
+        row:Redraw(parent)
         parent = row
       else
         row:Release()

@@ -13,6 +13,7 @@ local defaults = {
     alertSound = [[Interface\Addons\VikingSpy\assets\sounds\enemy-spotted.mp3]],
     font = LSM:Fetch("font", "Montserrat Regular"),
     fontSize = 12,
+    timerHeight = 1,
   }
 }
 
