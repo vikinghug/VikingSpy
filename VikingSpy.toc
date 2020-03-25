@@ -2,7 +2,7 @@
 ## Title: VikingSpy!
 ## Notes: Addon to display the detection of nearby friendly, and enemy players
 ## Author: Vikinghug
-## Version: 0.2.1
+## Version: 0.2.2
 ## Dependencies: VikingSharedLib
 ## SavedVariablesPerCharacter: VikingSpyDB
 ## X-Category: Addon

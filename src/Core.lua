@@ -46,10 +46,17 @@ function addon:CreateEvents()
   local f = self.eventFrame
   f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
   f:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
+  f:RegisterEvent("UNIT_TARGET")
   f:SetScript("OnEvent", function(self, event, ...)
     if event == "UPDATE_MOUSEOVER_UNIT" then
       local guid = UnitGUID("mouseover")
       local level = UnitLevel("mouseover")
+      return addon:MaybeAddUnit(guid, time(), level)
+    end
+
+    if event == "UNIT_TARGET" then
+      local guid = UnitGUID("target")
+      local level = UnitLevel("target")
       return addon:MaybeAddUnit(guid, time(), level)
     end
 
